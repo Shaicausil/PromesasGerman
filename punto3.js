@@ -29,4 +29,4 @@ function paso1() {
     console.log("Todos los pasos han sido completados")
   })
 
-  
+console.log("Holaaa")
