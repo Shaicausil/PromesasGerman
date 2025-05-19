@@ -28,3 +28,5 @@ function paso1() {
   .then(()=>{
     console.log("Todos los pasos han sido completados")
   })
+
+  
