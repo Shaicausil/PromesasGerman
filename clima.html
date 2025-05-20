@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Clima Medellín - OpenMeteo + MET.no</title>
+</head>
+<body>
+  <h1>Clima en Medellín</h1>
+  <div id="resultado">Cargando...</div>
+
+  <script>
+    const lat = 6.25184;
+    const lon = -75.56359;
+
+
+    async function getFromOpenMeteo() {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
+      const res = await fetch(url);
+      if(!res.ok) throw new Error('Error en OpenMeteo');
+      const data = await res.json();
+      return {
+        fuente: "Open-Meteo",
+        temperatura: data.current_weather.temperature,
+        descripcion: `Viento ${data.current_weather.windspeed} km/h`
+      };
+    }
+
+    async function getFromMetNo() {
+      const url = `https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${lat}&lon=${lon}`;
+      const res = await fetch(url, {
+        headers: {
+          'User-Agent': 'mi-app-clima-demo/1.0'
+        }
+      });
+      if(!res.ok) throw new Error('Error en MET.no');
+      const data = await res.json();
+
+      const temp = data.properties.timeseries[0].data.instant.details.air_temperature;
+
+      return {
+        fuente: "MET.no",
+        temperatura: temp,
+        descripcion: "Datos del MET.no"
+      };
+    }
+
+    // Función simulada 
+    async function getSimulada() {
+      await new Promise(resolve => setTimeout(resolve,3000));
+      return {
+        fuente: "Simulada",
+        temperatura: 25,
+        descripcion: "Parcialmente nublado"
+      };
+    }
+
+    async function mostrarClima() {
+      const resultadoDiv = document.getElementById("resultado");
+      try {
+        const clima = await Promise.race([
+          getFromOpenMeteo(),
+          getFromMetNo(),
+          getSimulada()
+        ]);
+        resultadoDiv.innerHTML = `
+          <strong>Fuente:</strong> ${clima.fuente}<br>
+          <strong>Temperatura:</strong> ${clima.temperatura}°C<br>
+          <strong>Descripción:</strong> ${clima.descripcion}
+        `;
+      } catch (error) {
+        resultadoDiv.textContent = "Error al obtener el clima.";
+        console.error(error);
+      }
+    }
+
+    mostrarClima();
+  </script>
+</body>
+</html>
+
