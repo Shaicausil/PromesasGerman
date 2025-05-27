@@ -14,6 +14,7 @@ app.post('/generate', async (req, res) => {
     // por s generate no esta creada 
     await fs.mkdir(outputDir, { recursive: true });
 
+    //promise
     const tasks = [];
 
     for (let i = 0; i < numberOfFiles; i++) {
