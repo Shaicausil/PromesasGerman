@@ -13,7 +13,9 @@ async function sendToGeminiAndMistral() {
 
     responseContainer.textContent = "";
     loader.style.display = 'block';
-    
+
+    // Prompt común para ambos modelos
+    const prompt = `Dado el siguiente comentario, responde claramente si es positivo o negativo. Tu respuesta debe ser una frase como "Ese comentario es positivo." o "Ese comentario es negativo.":\n\n"${inputText}"`;
 
     // GEMINI 
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`;
@@ -21,7 +23,7 @@ async function sendToGeminiAndMistral() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            contents: [{ parts: [{ text: inputText }] }]
+            contents: [{ parts: [{ text: prompt }] }]
         })
     };
 
@@ -35,13 +37,12 @@ async function sendToGeminiAndMistral() {
         },
         body: JSON.stringify({
             model: "mistral-small",
-            messages: [{ role: "user", content: inputText }],
+            messages: [{ role: "user", content: prompt }],
             temperature: 0.7
         })
     };
 
     try {
-        
         const [geminiRes, mistralRes] = await Promise.all([
             fetch(geminiUrl, geminiRequest),
             fetch(mistralUrl, mistralRequest)
